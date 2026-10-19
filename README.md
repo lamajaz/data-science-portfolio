@@ -6,5 +6,6 @@ Projects from my Master's in Data Science, Big Data & Business Analytics (Univer
 | --- | --- | --- |
 | [Smoking and lung cancer mortality in Spain](smoking-lung-cancer-spain/) | Is the fall in smoking in Spain showing up in lung cancer mortality? | Python, pandas, matplotlib, interactive HTML dashboard |
 | [Child and perinatal mortality in Venezuela](unicef-venezuela-child-mortality/) | How have neonatal, infant and stillbirth rates in Venezuela changed since 2000? | MongoDB (CRUD, aggregation pipelines, window functions), Excel |
+| [Predicting broken water pumps in Tanzania](tanzania-water-pumps/) | Which water points are functional, need repair or have stopped working? | Python, scikit-learn (Random Forest, Gradient Boosting, model comparison) |
 
 The analyses and reports are written in Spanish.
