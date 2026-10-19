@@ -1,5 +1,5 @@
 # Blood pressure, cholesterol and an antihypertensive drug
-
+Estadística_Hipertensión
 **Evaluación: Estadística**
 
 A statistical analysis of 100 patients, 40 young (Group 1) and 60 adults (Group 2), measuring systolic blood pressure before and 60 minutes after taking a drug, together with total cholesterol. All calculations are done in Excel.
