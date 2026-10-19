@@ -3,5 +3,5 @@
 __pycache__/
 
 #Datos de la competición Pump it Up: no se pueden redistribuir
-tanzania-water-pumps/datos/*.csv
+MachineLearning_Tanzania_Water_Pumps/datos/*.csv
 submission.csv
