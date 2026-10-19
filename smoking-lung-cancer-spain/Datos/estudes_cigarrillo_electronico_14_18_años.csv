@@ -1,0 +1,8 @@
+indicator,year,total,boys,girls,source
+ever,2014,17.0,,,"ESTUDES 2014 citado por Redacción Médica (31-05-2024)"
+ever,2021,44.3,,,"ESTUDES 2023, Resumen ejecutivo (PNSD)"
+ever,2023,54.6,52.5,56.8,"ESTUDES 2023, Resumen ejecutivo (PNSD)"
+last30d,2019,14.9,,,"Peruga et al., Gaceta Sanitaria 2023 (oleada ESTUDES 2018/19)"
+last30d,2021,8.1,,,"Peruga et al., Gaceta Sanitaria 2023 (ESTUDES 2021)"
+last30d,2023,26.3,24.7,27.9,"ESTUDES 2023, presentación (PNSD); total también en Redacción Médica"
+ever_age18,2023,66.0,,,"ESTUDES 2023 citado por Redacción Médica (31-05-2024)"

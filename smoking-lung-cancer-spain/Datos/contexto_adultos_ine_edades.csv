@@ -1,0 +1,9 @@
+dataset,year,population,measure,value,source
+EDADES,2020,"15-64 años","cigarrillo electrónico, alguna vez en la vida",10.5,"EDADES 2024, Informe ejecutivo (PNSD)"
+EDADES,2022,"15-64 años","cigarrillo electrónico, alguna vez en la vida",12.1,"EDADES 2024, Informe ejecutivo (PNSD)"
+EDADES,2024,"15-64 años","cigarrillo electrónico, alguna vez en la vida",19.0,"EDADES 2024, Informe ejecutivo (PNSD)"
+INE_ESdE,2020,"15 y más años","cigarrillo electrónico, uso diario u ocasional",0.94,"INE, Encuesta de Salud de España 2023 (nota de prensa 27-05-2025)"
+INE_ESdE,2023,"15 y más años","cigarrillo electrónico, uso diario u ocasional",1.60,"INE, Encuesta de Salud de España 2023 (nota de prensa 27-05-2025)"
+INE_ESdE,2023,"15-34 años","cigarrillo electrónico, uso diario u ocasional",3.5,"INE, Encuesta de Salud de España 2023 (nota de prensa 27-05-2025)"
+INE_ESdE,2023,"Hombres 25-34 años","fumadores diarios (máximo por edad entre hombres)",26.7,"INE, Encuesta de Salud de España 2023 (nota de prensa 27-05-2025)"
+INE_ESdE,2023,"Mujeres 45-54 años","fumadoras diarias (máximo por edad entre mujeres)",19.4,"INE, Encuesta de Salud de España 2023 (nota de prensa 27-05-2025)"

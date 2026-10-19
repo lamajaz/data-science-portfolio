@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tabaco, cáncer de pulmón y vapeo en España</title>
+<style>
+:root{--sup:#fcfcfb;--tinta:#0b0b0b;--tinta2:#52514e;--apagado:#898781;--rejilla:#e1e0d9;--eje:#c3c2b7;
+--ctx:#b0aea6;--azul:#2a78d6;--naranja:#eb6834;--aqua:#1baf7a;--violeta:#6250d6;--borde:#e1e0d9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--sup);color:var(--tinta);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:24px 16px 40px}
+h1{font-size:24px;line-height:1.2;margin:0 0 6px}
+.lead{color:var(--tinta2);margin:0 0 18px;max-width:760px}
+.filtros{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:10px 0 14px;border-top:1px solid var(--borde);border-bottom:1px solid var(--borde);margin-bottom:16px}
+.filtros label{font-size:13px;color:var(--tinta2)}
+select{font:inherit;padding:6px 10px;border:1px solid var(--eje);border-radius:6px;background:var(--sup);color:var(--tinta)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+.kpi{border:1px solid var(--borde);border-radius:10px;padding:12px 14px}
+.kpi .v{font-size:30px;font-weight:700;line-height:1.1}
+.kpi .t{font-size:13px;color:var(--tinta2);margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(440px,1fr));gap:16px}
+.card{border:1px solid var(--borde);border-radius:10px;padding:14px 14px 10px;min-width:0}
+.card h2{font-size:15.5px;line-height:1.3;margin:0 0 2px}
+.card .sub{font-size:12.5px;color:var(--tinta2);margin:0 0 8px}
+.barra{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:4px}
+.leyenda{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--tinta2)}
+.leyenda i{display:inline-block;width:16px;height:0;border-top:3px solid;vertical-align:middle;margin-right:5px;border-radius:2px}
+.btns button,.vt{font:inherit;font-size:12.5px;padding:4px 10px;border:1px solid var(--eje);background:var(--sup);color:var(--tinta2);cursor:pointer}
+.btns button:first-child{border-radius:6px 0 0 6px}.btns button:last-child{border-radius:0 6px 6px 0;border-left:0}
+.btns button[aria-pressed=true]{background:var(--tinta);color:var(--sup);border-color:var(--tinta)}
+.vt{border-radius:6px}
+button:focus-visible,select:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+.plot{position:relative}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{font-family:inherit}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{padding:4px 8px;border-bottom:1px solid var(--rejilla);text-align:right}
+th:first-child,td:first-child{text-align:left}
+.tabla{max-height:300px;overflow:auto}
+.tip{position:absolute;pointer-events:none;background:var(--sup);border:1px solid var(--eje);border-radius:8px;padding:8px 10px;font-size:12.5px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:5;min-width:130px;display:none}
+.tip .a{color:var(--tinta2);margin-bottom:4px}
+.tip .r{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tip .r i{width:12px;border-top:3px solid;border-radius:2px}
+.tip .r b{margin-left:auto;padding-left:12px}
+.pie{font-size:12px;color:var(--apagado);margin-top:18px}
+@media (max-width:520px){.grid{grid-template-columns:1fr}.kpi .v{font-size:26px}}
+</style></head><body><div class="wrap">
+<h1>¿Está funcionando la lucha contra el tabaquismo en España?</h1>
+<p class="lead">El tabaquismo baja, pero la mortalidad por cáncer de pulmón refleja décadas de consumo previo y evoluciona de forma muy distinta en hombres y mujeres. Entre los más jóvenes, el vapeo ya supera al tabaco.</p>
+<div class="filtros"><label for="pais">País (gráficos 1 a 3 y primeras tres cifras)</label><select id="pais"></select></div>
+<div class="kpis" id="kpis"></div>
+<div class="grid" id="grid"></div>
+<p class="pie" id="pie"></p>
+</div>
+<script>
+const D = {"paises": {"Spain": "España", "France": "Francia", "Italy": "Italia", "Greece": "Grecia", "United Kingdom": "Reino Unido", "Norway": "Noruega"}, "tabaco": {"Spain": [[2000, 34.7], [2005, 33.1], [2007, 32.4], [2010, 31.5], [2015, 30.0], [2020, 28.5], [2022, 28.1], [2023, 27.9], [2024, 27.6]], "France": [[2000, 34.5], [2005, 34.2], [2007, 34.2], [2010, 34.0], [2015, 33.7], [2020, 33.8], [2022, 33.7], [2023, 33.4], [2024, 33.6]], "Italy": [[2000, 25.9], [2005, 25.1], [2007, 24.8], [2010, 24.4], [2015, 23.7], [2020, 23.0], [2022, 22.7], [2023, 22.6], [2024, 22.4]], "Greece": [[2000, 52.2], [2005, 46.4], [2007, 44.2], [2010, 41.3], [2015, 36.7], [2020, 33.0], [2022, 31.5], [2023, 31.0], [2024, 30.2]], "United Kingdom": [[2000, 38.2], [2005, 30.3], [2007, 27.7], [2010, 24.2], [2015, 19.2], [2020, 15.3], [2022, 14.0], [2023, 13.4], [2024, 12.8]], "Norway": [[2000, 45.3], [2005, 34.9], [2007, 31.4], [2010, 26.8], [2015, 20.8], [2020, 16.0], [2022, 14.4], [2023, 13.7], [2024, 12.9]]}, "mortalidad": {"Spain": {"anios": [1951, 1952, 1953, 1954, 1955, 1956, 1957, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023], "hombres": [8.13, 9.92, 10.09, 11.58, 13.23, 14.28, 14.84, 15.03, 15.51, 18.35, 18.76, 20.35, 19.76, 20.14, 21.12, 21.97, 22.54, 23.66, 23.67, 24.79, 25.8, 26.71, 28.22, 29.99, 33.21, 32.44, 34.05, 36.06, 38.0, 37.18, 40.04, 40.72, 41.92, 44.24, 44.87, 45.36, 47.99, 50.4, 51.25, 51.71, 52.61, 53.81, 54.08, 54.78, 55.41, 53.64, 53.43, 54.46, 54.13, 52.02, 53.19, 51.4, 51.82, 51.23, 49.87, 49.56, 49.15, 48.01, 47.46, 46.61, 46.22, 45.17, 43.81, 42.18, 41.48, 41.45, 39.7, 38.89, 37.32, 35.93, 35.44, 34.7, 33.41], "mujeres": [2.45, 2.55, 2.59, 3.1, 3.07, 3.51, 3.93, 3.59, 3.65, 4.34, 3.87, 4.09, 4.08, 3.89, 4.09, 4.27, 4.6, 4.5, 4.34, 4.54, 4.6, 4.42, 4.57, 4.71, 4.68, 4.22, 4.68, 4.44, 4.46, 4.42, 4.31, 4.18, 4.42, 3.95, 4.22, 4.19, 4.25, 3.93, 3.96, 4.04, 4.31, 4.18, 4.21, 4.36, 4.53, 4.49, 4.78, 4.95, 4.95, 5.24, 5.39, 5.73, 5.98, 6.48, 6.32, 6.76, 6.95, 7.48, 7.62, 8.33, 8.33, 8.85, 9.27, 9.0, 9.61, 9.81, 10.21, 10.19, 10.32, 10.42, 10.84, 11.2, 11.34]}, "France": {"anios": [1950, 1951, 1952, 1953, 1954, 1955, 1956, 1957, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022], "hombres": [11.43, 11.33, 14.52, 15.51, 17.21, 17.79, 18.71, 21.12, 21.12, 22.35, 23.7, 25.05, 26.05, 27.88, 28.76, 30.16, 31.64, 32.11, 32.99, 33.29, 32.94, 34.74, 36.98, 37.67, 39.52, 39.92, 42.55, 43.59, 45.89, 46.25, 46.81, 47.63, 48.04, 48.26, 49.47, 50.01, 51.98, 51.7, 52.37, 52.67, 51.93, 52.68, 52.79, 52.94, 51.65, 52.11, 51.81, 51.24, 52.55, 51.82, 50.46, 49.72, 49.26, 48.44, 48.44, 48.66, 47.76, 47.14, 45.92, 45.8, 44.47, 44.02, 42.69, 41.77, 41.41, 40.95, 39.31, 36.99, 36.14, 34.1, 33.45, 32.09, 31.51], "mujeres": [3.36, 3.33, 3.65, 3.61, 3.73, 3.71, 3.72, 3.89, 3.75, 3.83, 3.77, 3.83, 3.99, 4.29, 4.19, 4.15, 4.26, 4.46, 4.02, 3.85, 3.72, 3.84, 3.91, 3.93, 4.02, 3.98, 4.01, 4.08, 4.27, 4.13, 4.26, 4.45, 4.51, 4.74, 4.64, 4.87, 5.07, 5.53, 5.59, 5.73, 5.69, 5.99, 6.03, 6.33, 6.55, 7.01, 7.26, 7.22, 8.12, 8.4, 8.19, 8.49, 9.24, 9.89, 10.14, 10.81, 11.25, 11.29, 11.84, 12.33, 12.36, 12.56, 13.37, 12.78, 13.96, 13.91, 13.8, 14.0, 13.42, 14.08, 13.64, 13.23, 13.5]}, "Italy": {"anios": [1951, 1952, 1953, 1954, 1955, 1956, 1957, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022], "hombres": [10.25, 11.58, 12.98, 14.9, 15.71, 17.78, 18.93, 19.73, 21.16, 23.01, 24.32, 25.93, 26.97, 30.18, 31.5, 33.08, 35.18, 37.73, 39.9, 39.78, 43.05, 44.26, 46.36, 46.76, 48.26, 50.67, 52.27, 54.43, 56.72, 59.24, 58.54, 62.04, 63.38, 63.5, 64.89, 63.59, 66.16, 66.36, 64.94, 63.72, 63.48, 63.22, 62.41, 61.3, 59.68, 58.72, 57.62, 56.91, 55.93, 54.03, 53.47, 51.94, 50.7, 48.76, 47.74, 46.7, 45.54, 44.28, 43.36, 42.5, 41.96, 40.47, 38.89, 37.39, 36.9, 35.62, 34.76, 33.8, 31.69, 30.81, 29.33, 28.22], "mujeres": [2.84, 2.99, 3.2, 3.24, 3.64, 3.81, 3.76, 3.93, 3.76, 4.42, 4.43, 4.35, 4.67, 4.89, 4.95, 5.27, 5.06, 5.13, 5.3, 5.22, 5.18, 5.57, 5.86, 5.84, 6.0, 6.27, 6.5, 6.29, 6.63, 6.71, 6.87, 7.06, 7.36, 7.53, 7.68, 8.11, 8.04, 8.23, 8.34, 8.33, 8.34, 9.04, 8.84, 8.89, 9.08, 9.25, 9.07, 9.26, 9.2, 9.71, 9.81, 10.17, 9.83, 10.16, 10.14, 10.42, 10.77, 10.87, 11.08, 11.19, 11.74, 11.7, 11.83, 11.91, 12.17, 12.21, 12.43, 12.5, 12.1, 12.09, 12.15, 12.05]}, "Greece": {"anios": [1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022], "hombres": [26.48, 30.78, 31.05, 32.15, 34.21, 34.22, 36.66, 36.97, 38.17, 34.84, 36.63, 38.12, 43.37, 45.82, 43.46, 47.25, 48.34, 50.36, 51.15, 48.15, 50.0, 51.18, 52.59, 52.62, 54.92, 54.37, 54.21, 54.52, 56.59, 55.61, 56.38, 54.91, 56.74, 56.89, 55.53, 56.24, 55.32, 54.77, 55.3, 55.29, 54.94, 52.95, 53.58, 54.52, 53.54, 52.78, 52.63, 52.85, 52.1, 50.32, 50.69, 52.46, 53.99, 54.3, 53.12, 51.43, 51.37, 49.37, 48.49, 46.54, 45.45, 43.23], "mujeres": [5.25, 5.11, 6.5, 5.55, 6.94, 6.84, 6.82, 6.28, 6.79, 6.78, 5.73, 6.5, 6.94, 6.78, 7.49, 6.86, 7.86, 7.89, 7.67, 6.9, 6.74, 7.19, 6.99, 7.06, 7.98, 7.18, 7.29, 7.86, 7.58, 8.4, 8.03, 7.89, 7.78, 7.97, 8.16, 8.15, 8.03, 8.5, 7.87, 8.54, 8.31, 8.47, 8.63, 8.38, 8.27, 8.36, 8.71, 9.4, 9.27, 9.81, 9.87, 10.42, 11.18, 10.98, 11.46, 11.74, 11.08, 11.8, 11.98, 12.42, 11.84, 11.63]}, "United Kingdom": {"anios": [1950, 1951, 1952, 1953, 1954, 1955, 1956, 1957, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021], "hombres": [40.79, 44.14, 47.08, 50.49, 53.96, 56.3, 59.04, 61.34, 63.18, 66.59, 68.39, 69.69, 71.73, 73.4, 74.85, 76.44, 77.63, 79.78, 80.45, 82.37, 82.53, 81.68, 82.9, 83.67, 84.4, 82.58, 83.48, 82.65, 83.09, 83.16, 81.75, 78.37, 77.24, 78.21, 76.61, 75.91, 72.98, 71.01, 70.02, 67.5, 66.12, 64.87, 62.62, 59.76, 57.83, 55.39, 53.02, 50.65, 49.76, 47.39, 45.87, 44.81, 43.88, 41.95, 40.8, 40.14, 39.77, 39.03, 38.58, 37.54, 36.25, 35.69, 34.31, 33.87, 33.13, 31.76, 31.37, 29.82, 29.52, 27.81, 26.52, 24.8], "mujeres": [6.63, 6.72, 6.98, 7.11, 7.28, 7.42, 7.78, 7.89, 8.22, 8.53, 8.84, 9.35, 9.69, 10.08, 10.66, 11.28, 11.71, 12.35, 12.88, 13.16, 13.75, 14.27, 14.92, 15.31, 16.41, 16.55, 16.98, 17.71, 18.4, 19.08, 19.64, 19.58, 20.74, 20.7, 22.08, 21.97, 22.25, 22.75, 23.52, 23.42, 23.31, 23.41, 23.45, 23.26, 23.36, 23.3, 23.3, 22.66, 23.1, 22.92, 22.78, 22.49, 22.69, 22.66, 22.66, 23.0, 23.89, 23.82, 24.37, 23.7, 23.77, 23.43, 23.75, 23.21, 23.3, 23.04, 22.58, 21.98, 21.89, 20.73, 20.42, 19.74]}, "Norway": {"anios": [1951, 1952, 1953, 1954, 1955, 1956, 1957, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016], "hombres": [7.69, 8.41, 7.56, 9.6, 8.66, 9.99, 9.85, 11.23, 12.44, 13.74, 13.48, 13.32, 14.87, 15.22, 15.59, 15.62, 17.68, 19.89, 19.97, 20.97, 21.42, 21.3, 22.17, 21.61, 25.14, 25.64, 27.05, 27.49, 27.4, 26.99, 32.74, 32.11, 30.85, 32.37, 33.09, 34.58, 34.67, 34.97, 33.34, 33.72, 35.59, 35.14, 35.99, 35.99, 35.34, 35.22, 35.51, 34.79, 36.25, 34.48, 34.66, 37.04, 35.59, 34.5, 33.69, 34.21, 33.79, 32.56, 32.63, 32.03, 31.7, 30.4, 28.64, 27.89, 26.8, 25.91], "mujeres": [2.77, 3.53, 2.53, 2.53, 3.03, 2.6, 2.87, 2.48, 3.15, 2.9, 2.8, 2.95, 2.92, 3.4, 2.47, 2.94, 3.79, 3.83, 4.27, 3.88, 4.39, 4.29, 4.73, 4.49, 5.08, 4.99, 5.39, 5.37, 5.92, 6.39, 6.26, 7.62, 7.41, 8.5, 9.45, 9.71, 9.45, 11.29, 10.98, 11.61, 12.02, 11.6, 12.27, 14.66, 14.3, 15.77, 17.86, 15.72, 15.21, 17.59, 18.24, 17.82, 18.35, 19.1, 19.49, 19.12, 20.73, 21.44, 18.92, 20.9, 20.59, 20.08, 20.24, 20.05, 19.78, 19.96]}}, "ine": {"anios": [2009, 2012, 2014, 2017, 2020, 2023], "hombres": [31.2, 27.9, 27.6, 25.6, 23.3, 20.2], "mujeres": [21.3, 20.2, 18.6, 18.8, 16.4, 13.3]}, "jovenes": {"anios": [1996, 1998, 2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014, 2016, 2019, 2021, 2023], "d30_chicos": [26.2, 25.5, 27.3, 25.0, 25.1, 24.8, 30.9, 23.0, 28.1, 24.5, 25.6, 23.9, 21.2, 18.9], "d30_chicas": [38.1, 37.6, 37.1, 33.4, 32.4, 30.6, 33.8, 29.3, 31.3, 27.2, 29.0, 29.3, 26.7, 23.3], "dia_chicos": [19.0, 17.9, 19.3, 17.2, 18.9, 12.5, 13.3, 11.0, 12.0, 8.7, 8.6, 9.4, 8.8, 6.9], "dia_chicas": [28.1, 27.5, 27.0, 24.2, 24.1, 16.9, 16.4, 13.6, 13.1, 9.1, 9.0, 10.3, 9.2, 8.1]}, "vapeo": {"mes": {"vapeo": [[2019, 14.9], [2021, 8.1], [2023, 26.3]], "tabaco": [[2019, 26.7], [2021, 23.9], [2023, 21.0]]}, "alguna": {"vapeo": [[2014, 17.0], [2021, 44.3], [2023, 54.6]], "tabaco": [[2014, 38.4], [2021, 38.2], [2023, 33.4]]}}};
+const COL = {azul:"#2a78d6",naranja:"#eb6834",aqua:"#1baf7a",violeta:"#6250d6",ctx:"#b0aea6"};
+const fmt = (x,d=1)=>x==null?"–":x.toLocaleString("es-ES",{minimumFractionDigits:d,maximumFractionDigits:d}).replace("-","−");
+const $ = (s,el=document)=>el.querySelector(s);
+const el = (t,a={},txt)=>{const e=document.createElement(t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const NS="http://www.w3.org/2000/svg";
+const sv = (t,a={},txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+
+/* ---------- gráfico de líneas genérico: ejes, etiquetas directas, cruz y tooltip ---------- */
+function lineChart(host, cfg){
+  host.replaceChildren();
+  const W = Math.max(host.clientWidth||420, 300), H = Math.round(Math.min(W*0.62, 330));
+  const m = {t:10,r:cfg.mr||78,b:26,l:40};
+  const xs = cfg.series.flatMap(s=>s.pts.map(p=>p[0]));
+  const x0 = cfg.xmin ?? Math.min(...xs), x1 = Math.max(...xs);
+  const raw = cfg.ymax ?? Math.max(...cfg.series.flatMap(s=>s.pts.map(p=>p[1])))*1.05;
+  const step = [1,2,5,10,20,25,50,100].find(q=>raw/q<=5)||100, yMax = Math.ceil(raw/step)*step;
+  const X = v=>m.l+(v-x0)/(x1-x0||1)*(W-m.l-m.r), Y = v=>H-m.b-(v/yMax)*(H-m.t-m.b);
+  const svg = sv("svg",{viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":cfg.aria});
+  const nt = Math.round(yMax/step); for(let i=0;i<=nt;i++){const v=step*i;
+    svg.append(sv("line",{x1:m.l,x2:W-m.r,y1:Y(v),y2:Y(v),stroke:"var(--rejilla)","stroke-width":1}));
+    svg.append(sv("text",{x:m.l-6,y:Y(v)+4,"text-anchor":"end","font-size":11,fill:"var(--apagado)"},fmt(v,0)+(cfg.unit||"")));}
+  const ticks = cfg.ticks || [...new Set(xs)].filter((_,i,a)=>a.length<=8||i%Math.ceil(a.length/7)===0);
+  ticks.forEach(v=>svg.append(sv("text",{x:X(v),y:H-8,"text-anchor":"middle","font-size":11,fill:"var(--apagado)"},String(v))));
+  svg.append(sv("line",{x1:m.l,x2:W-m.r,y1:Y(0),y2:Y(0),stroke:"var(--eje)"}));
+  // gris de contexto debajo, énfasis encima
+  [...cfg.series].sort((a,b)=>(a.ctx?0:1)-(b.ctx?0:1)).forEach(s=>{
+    const d = s.pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join("");
+    svg.append(sv("path",{d,fill:"none",stroke:s.color,"stroke-width":s.ctx?1.4:2.4,"stroke-linejoin":"round","stroke-linecap":"round"}));
+    if(cfg.dots||s.pts.length<=16&&!s.ctx) s.pts.forEach(p=>svg.append(sv("circle",{cx:X(p[0]),cy:Y(p[1]),r:s.ctx?2.5:3.5,fill:s.color,stroke:"var(--sup)","stroke-width":1.5})));
+  });
+  // etiquetas directas al final (sin solaparse)
+  const fin = cfg.series.filter(s=>s.label).map(s=>({s,y:Y(s.pts[s.pts.length-1][1]),x:X(s.pts[s.pts.length-1][0])})).sort((a,b)=>a.y-b.y);
+  for(let i=1;i<fin.length;i++) if(fin[i].y-fin[i-1].y<14) fin[i].y=fin[i-1].y+14;
+  fin.forEach(f=>svg.append(sv("text",{x:f.x+7,y:f.y+4,"font-size":11.5,"font-weight":600,fill:"var(--tinta)"},f.s.label+" "+fmt(f.s.pts[f.s.pts.length-1][1]))));
+  // cruz + tooltip
+  const cross = sv("line",{y1:m.t,y2:H-m.b,stroke:"var(--apagado)","stroke-width":1,visibility:"hidden"});
+  svg.append(cross);
+  const hit = sv("rect",{x:m.l,y:0,width:W-m.l-m.r,height:H,fill:"transparent",tabindex:0});
+  svg.append(hit);
+  const tip = el("div",{class:"tip"}); const wrap = el("div",{class:"plot"});
+  wrap.append(svg,tip); host.append(wrap);
+  const ux = [...new Set(xs)].sort((a,b)=>a-b);
+  const show = cx=>{
+    const xv = x0+(cx-m.l)/(W-m.l-m.r)*(x1-x0); const n = ux.reduce((a,b)=>Math.abs(b-xv)<Math.abs(a-xv)?b:a);
+    cross.setAttribute("x1",X(n)); cross.setAttribute("x2",X(n)); cross.setAttribute("visibility","visible");
+    tip.replaceChildren(el("div",{class:"a"},String(n)));
+    cfg.series.filter(s=>!s.hideTip).forEach(s=>{const p=s.pts.find(q=>q[0]===n); if(!p) return;
+      const r=el("div",{class:"r"}); const k=el("i"); k.style.borderTopColor=s.color; r.append(k,el("span",{},s.name),el("b",{},fmt(p[1])+(cfg.unit||""))); tip.append(r);});
+    tip.style.display="block"; const bw = wrap.clientWidth; const left = X(n)/W*bw;
+    tip.style.left = Math.min(left+12, bw-tip.offsetWidth-4)+"px"; tip.style.top="8px";
+  };
+  const evt = e=>{const b=svg.getBoundingClientRect(); show((e.clientX-b.left)/b.width*W);};
+  hit.addEventListener("pointermove",evt); hit.addEventListener("pointerdown",evt);
+  hit.addEventListener("pointerleave",()=>{cross.setAttribute("visibility","hidden");tip.style.display="none";});
+  hit.addEventListener("focus",()=>show(X(ux[ux.length-1])));
+  hit.addEventListener("blur",()=>{cross.setAttribute("visibility","hidden");tip.style.display="none";});
+}
+
+/* ---------- tarjeta: título, leyenda, controles, gráfico y vista de tabla ---------- */
+function tabla(cfg){
+  const xs=[...new Set(cfg.series.flatMap(s=>s.pts.map(p=>p[0])))].sort((a,b)=>a-b);
+  const t=el("table"); const h=el("tr"); h.append(el("th",{},"Año")); cfg.series.forEach(s=>h.append(el("th",{},s.name))); const th=el("thead"); th.append(h); t.append(th);
+  const b=el("tbody"); xs.forEach(x=>{const r=el("tr"); r.append(el("td",{},String(x)));
+    cfg.series.forEach(s=>{const p=s.pts.find(q=>q[0]===x); r.append(el("td",{},p?fmt(p[1])+(cfg.unit||""):"–"));}); b.append(r);}); t.append(b);
+  const w=el("div",{class:"tabla"}); w.append(t); return w;
+}
+function tarjeta(id, titulo, sub, cfg, opts={}){
+  let c = $("#"+id); if(!c){c=el("section",{class:"card",id}); $("#grid").append(c);}
+  const modoTabla = c.dataset.tabla==="1";
+  c.replaceChildren(el("h2",{},titulo), el("p",{class:"sub"},sub));
+  const barra=el("div",{class:"barra"}); const ley=el("div",{class:"leyenda"});
+  cfg.leyenda.forEach(l=>{const s=el("span"); const i=el("i"); i.style.borderTopColor=l.color; s.append(i,document.createTextNode(l.name)); ley.append(s);});
+  const der=el("div",{style:"display:flex;gap:8px;align-items:center"});
+  if(opts.toggle){const g=el("div",{class:"btns",role:"group","aria-label":"Medida"});
+    opts.toggle.items.forEach(([k,txt])=>{const b=el("button",{type:"button","aria-pressed":String(opts.toggle.value===k)},txt);
+      b.onclick=()=>opts.toggle.on(k); g.append(b);}); der.append(g);}
+  const vt=el("button",{class:"vt",type:"button","aria-pressed":String(modoTabla)},modoTabla?"Ver gráfico":"Ver tabla");
+  vt.onclick=()=>{c.dataset.tabla=modoTabla?"0":"1"; render();}; der.append(vt);
+  barra.append(ley,der); c.append(barra);
+  const host=el("div"); c.append(host);
+  if(modoTabla) host.append(tabla(cfg)); else lineChart(host,cfg);
+}
+
+/* ---------- estado y render ---------- */
+const st = {pais:"Spain", jov:"d30", vap:"mes"};
+const sel = $("#pais");
+Object.entries(D.paises).forEach(([k,v])=>sel.append(el("option",{value:k},v)));
+sel.onchange=()=>{st.pais=sel.value;render();};
+
+function render(){
+  const P=st.pais, nombre=D.paises[P];
+  // gráfico 1: tabaquismo adulto (OMS)
+  const tb=D.tabaco[P], a0=tb[0], a1=tb[tb.length-1];
+  tarjeta("c1",`${nombre}: el tabaquismo adulto ${a1[1]<a0[1]?"baja":"sube"} de ${fmt(a0[1])} % (${a0[0]}) a ${fmt(a1[1])} % (${a1[0]})`,
+    "Adultos que fuman o consumen tabaco, estandarizado por edad · estimaciones modeladas OMS",
+    {aria:`Tabaquismo adulto en ${nombre} y otros cinco países`,unit:" %",ymax:60,xmin:2000,ticks:[2000,2005,2010,2015,2020,2024],dots:true,
+     series:Object.keys(D.paises).map(k=>({name:D.paises[k],pts:D.tabaco[k],ctx:k!==P,color:k===P?COL.aqua:COL.ctx,label:k===P?D.paises[k]:null})),
+     leyenda:[{name:nombre,color:COL.aqua},{name:"Otros cinco países",color:COL.ctx}]});
+  // gráfico 2: mortalidad por sexo
+  const M=D.mortalidad[P], ult=M.anios.length-1, im=M.hombres.indexOf(Math.max(...M.hombres));
+  const caida=(M.hombres[ult]/M.hombres[im]-1)*100, i90=M.anios.indexOf(1990), mult=M.mujeres[ult]/M.mujeres[i90];
+  tarjeta("c2",`${nombre}: hombres ${fmt(caida,0)} % desde su máximo (${M.anios[im]}); mujeres ×${fmt(mult)} desde 1990`,
+    `Muertes por cáncer de pulmón por 100.000 habitantes, ${M.anios[0]}–${M.anios[ult]}`,
+    {aria:`Mortalidad por cáncer de pulmón en ${nombre}, hombres y mujeres`,mr:92,ticks:[1950,1960,1970,1980,1990,2000,2010,2020].filter(v=>v>=M.anios[0]),
+     series:[{name:"Hombres",label:"Hombres",color:COL.azul,pts:M.anios.map((a,i)=>[a,M.hombres[i]])},
+             {name:"Mujeres",label:"Mujeres",color:COL.naranja,pts:M.anios.map((a,i)=>[a,M.mujeres[i]])}],
+     leyenda:[{name:"Hombres",color:COL.azul},{name:"Mujeres",color:COL.naranja}]});
+  // gráfico 3: brecha (mujeres como % de hombres)
+  const R=M.anios.map((a,i)=>[a,M.mujeres[i]/M.hombres[i]*100]);
+  tarjeta("c3",`${nombre}: la tasa femenina equivale hoy al ${fmt(R[ult][1],0)} % de la masculina`,
+    `Mortalidad de las mujeres como % de la de los hombres · mínimo ${fmt(Math.min(...R.map(r=>r[1])),0)} % en ${R.reduce((a,b)=>b[1]<a[1]?b:a)[0]}`,
+    {aria:`Brecha de mortalidad entre sexos en ${nombre}`,unit:" %",ticks:[1950,1960,1970,1980,1990,2000,2010,2020].filter(v=>v>=M.anios[0]),
+     series:[{name:"Mujeres / hombres",label:null,color:"#52514e",pts:R}],leyenda:[{name:"Tasa de mujeres ÷ tasa de hombres",color:"#52514e"}]});
+  // gráfico 4: adultos, fumadores diarios por sexo (INE)
+  const I=D.ine;
+  tarjeta("c4",`España: fuman a diario más hombres que mujeres, pero la distancia baja de ${fmt(I.hombres[0]-I.mujeres[0])} a ${fmt(I.hombres[I.hombres.length-1]-I.mujeres[I.mujeres.length-1])} puntos`,
+    `Fumadores diarios (%) · encuestas de salud del INE · solo España`,
+    {aria:"Fumadores diarios adultos por sexo en España",unit:" %",ymax:40,dots:true,ticks:I.anios,mr:92,
+     series:[{name:"Hombres",label:"Hombres",color:COL.azul,pts:I.anios.map((a,i)=>[a,I.hombres[i]])},
+             {name:"Mujeres",label:"Mujeres",color:COL.naranja,pts:I.anios.map((a,i)=>[a,I.mujeres[i]])}],
+     leyenda:[{name:"Hombres",color:COL.azul},{name:"Mujeres",color:COL.naranja}]});
+  // gráfico 5: escolares, tabaco por sexo (ESTUDES)
+  const J=D.jovenes, k=st.jov;
+  tarjeta("c5","Escolares de 14 a 18 años: las chicas fuman más que los chicos en todas las oleadas",
+    `${k==="d30"?"Fumó en los últimos 30 días":"Fuma a diario"} (%) · ESTUDES, 1996–2023 · solo España`,
+    {aria:"Tabaco en escolares por sexo",unit:" %",ymax:40,dots:true,ticks:[1996,2006,2016,2023],mr:80,
+     series:[{name:"Chicos",label:"Chicos",color:COL.azul,pts:J.anios.map((a,i)=>[a,J[k+"_chicos"][i]])},
+             {name:"Chicas",label:"Chicas",color:COL.naranja,pts:J.anios.map((a,i)=>[a,J[k+"_chicas"][i]])}],
+     leyenda:[{name:"Chicos",color:COL.azul},{name:"Chicas",color:COL.naranja}]},
+    {toggle:{value:k,items:[["d30","Último mes"],["dia","A diario"]],on:v=>{st.jov=v;render();}}});
+  // gráfico 6: vapeo frente a tabaco
+  const V=D.vapeo[st.vap], vl=V.vapeo[V.vapeo.length-1][1], tl=V.tabaco[V.tabaco.length-1][1];
+  tarjeta("c6",st.vap==="mes"?`En 2023 el ${fmt(vl)} % de los escolares vapeó en el último mes; el ${fmt(tl)} % fumó tabaco`
+                           :`En 2023 el ${fmt(vl)} % de los escolares ha probado el cigarrillo electrónico; el ${fmt(tl)} %, el tabaco`,
+    `Estudiantes de 14 a 18 años (%) · ESTUDES · los años no son equidistantes · solo España`,
+    {aria:"Vapeo frente a tabaco en escolares",unit:" %",ymax:60,dots:true,ticks:V.vapeo.map(p=>p[0]),mr:84,
+     series:[{name:"Cigarrillo electrónico",label:"Vapeo",color:COL.violeta,pts:V.vapeo},
+             {name:"Tabaco",label:"Tabaco",color:COL.aqua,pts:V.tabaco}],
+     leyenda:[{name:"Cigarrillo electrónico",color:COL.violeta},{name:"Tabaco",color:COL.aqua}]},
+    {toggle:{value:st.vap,items:[["mes","Último mes"],["alguna","Alguna vez"]],on:v=>{st.vap=v;render();}}});
+  // cifras clave
+  const K=$("#kpis"); K.replaceChildren();
+  const kpi=(v,t)=>{const d=el("div",{class:"kpi"}); d.append(el("div",{class:"v"},v),el("div",{class:"t"},t)); K.append(d);};
+  kpi(fmt(a1[1])+" %",`${nombre}: adultos que consumen tabaco en ${a1[0]} (${fmt(a1[1]-a0[1])} puntos desde ${a0[0]})`);
+  kpi(fmt(caida,0)+" %",`${nombre}: mortalidad masculina frente a su máximo de ${M.anios[im]}`);
+  kpi("×"+fmt(mult),`${nombre}: mortalidad femenina en ${M.anios[ult]} frente a 1990`);
+  const v30=D.vapeo.mes.vapeo[2][1]; kpi(fmt(v30)+" %","España: escolares de 14 a 18 años que vapearon en el último mes (2023)");
+}
+$("#pie").textContent="Fuentes: Our World in Data / OMS (tabaquismo y mortalidad), ESTUDES-PNSD (escolares), INE (adultos). Datos modelados u oficiales transcritos; ver el notebook para definiciones y limitaciones. Los porcentajes de países distintos no son plenamente comparables (series con años finales distintos).";
+render();
+let rt; addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(render,120);});
+</script></body></html>
