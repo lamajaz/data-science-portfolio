@@ -27,4 +27,4 @@ A statistical analysis of 100 patients, 40 young (Group 1) and 60 adults (Group 
 | `analisis.xlsx` | Data and all calculations, with formulas |
 
 ---
-Lama Jaber · Estadística (professor: Francisco José Lluna), Master's in Data Science, Big Data & Business Analytics, UCM
+Lama Jaber · Estadística, Master's in Data Science, Big Data & Business Analytics, UCM

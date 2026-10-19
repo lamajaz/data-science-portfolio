@@ -2,6 +2,6 @@
 .ipynb_checkpoints/
 __pycache__/
 
-# Datos de la competición Pump it Up: no se pueden redistribuir
+#Datos de la competición Pump it Up: no se pueden redistribuir
 tanzania-water-pumps/datos/*.csv
 submission.csv

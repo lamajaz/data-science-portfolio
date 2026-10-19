@@ -37,4 +37,4 @@ mongosh unicef queries.js
 `queries.js` first renames the UNICEF columns to the field names used in the report (`Indicator_code`, `Indicator_name`, `Country`), then runs the operations in order.
 
 ---
-Lama Jaber · Bases de Datos NoSQL (professor: Álvaro Bravo), Master's in Data Science, Big Data & Business Analytics, UCM
+Lama Jaber · Bases de Datos NoSQL, Master's in Data Science, Big Data & Business Analytics, UCM

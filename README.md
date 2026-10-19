@@ -1,6 +1,6 @@
 # Data Science Portfolio – Lama Jaber
 
-Projects from my Master's in Data Science, Big Data & Business Analytics (Universidad Complutense de Madrid), with a focus on public health.
+Projects from my Master's in Data Science, Big Data & Business Analytics (Universidad Complutense de Madrid):
 
 | Project | Question | Tools |
 | --- | --- | --- |
