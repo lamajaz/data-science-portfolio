@@ -14,8 +14,7 @@ A full data mining workflow on 6,684 employees (age, gender, education level, jo
 ## Key findings
 
 - Years of experience is the strongest driver of salary. The linear model explains 75% of the variation in salary, with the same R² on the test set.
-- Checking the assumptions showed that salary does not grow linearly with experience: each extra year adds less than the one before. Adding a squared experience term fixed the linearity problem (Ramsey RESET p = 0.40) and raised test R² from 0.754 to 0.785.
-- The residual variance is not constant (Breusch-Pagan p < 0.001): junior salaries are very similar, senior salaries vary much more. With heteroscedasticity-robust (HC3) standard errors, the HR and Marketing & Sales categories turn out to pay significantly less, which the classical standard errors missed.
+- Checking the regression assumptions showed that salary does not grow linearly with experience and that the residual variance is not constant (Ramsey RESET and Breusch-Pagan, both p < 0.001), so the model's p-values should be read with caution.
 - Forward selection keeps the same predictive power with 18 of the 26 variables. Principal component regression removes multicollinearity but explains less (R² 0.71) and loses interpretability.
 - Gender is hard to predict from the other variables (accuracy 62%, pseudo-R² 0.07). The model finds 80% of men but only 40% of women.
 - Both clustering methods find three profiles: junior employees with little experience and low salaries, mid-career employees, and senior employees with the highest salaries.
